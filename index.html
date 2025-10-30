@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Algoritmo de Dijkstra - Encuentra el Camino Más Corto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Solo colores permitidos: #000000 y #0040ff */
+        :root {
+            --black: #000000;
+            --blue: #0040ff;
+        }
+        html, body {
+            height: 100%;
+            background: var(--black);
+            color: var(--blue);
+            font-family: Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 940px;
+            margin: 24px auto;
+            background: var(--black);
+            border-radius: 10px;
+            overflow: hidden;
+            padding-bottom: 24px;
+            border: 3px solid var(--blue);
+        }
+
+        header {
+            background: var(--blue);
+            color: var(--black);
+            padding: 28px 20px;
+            text-align: center;
+        }
+        h1 { font-size: 2em; margin-bottom: 8px; color: var(--black); }
+        .subtitle { color: var(--black); opacity: 0.95; }
+
+        .section {
+            padding: 26px;
+            border-bottom: 3px solid var(--blue);
+        }
+        .section:last-child { border-bottom: none; }
+
+        h2 {
+            color: var(--blue);
+            font-size: 1.6em;
+            margin-bottom: 18px;
+            border-left: 5px solid var(--blue);
+            padding-left: 12px;
+        }
+
+        .explanation, .tip-box {
+            background: var(--black);
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .explanation h3 { color: var(--blue); margin-bottom: 10px; }
+        .explanation p, .explanation li { color: var(--blue); }
+
+        .example-box {
+            background: var(--black);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border-left: 4px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .code-explanation, pre code {
+            background: var(--black);
+            color: var(--blue);
+            padding: 14px;
+            border-radius: 8px;
+            border: 2px solid var(--blue);
+            display: block;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+
+        .input-simple {
+            display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: 1.05em;
+        }
+        .input-simple label { color: var(--blue); font-weight: bold; min-width: 150px; }
+        .input-simple input {
+            flex: 1; padding: 12px; font-size: 1.05em;
+            border: 2px solid var(--blue); border-radius: 8px;
+            background: var(--black); color: var(--blue);
+        }
+
+        .big-button {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.05em;
+            font-weight: 700;
+            border: 2px solid var(--blue);
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px 0;
+            transition: transform .12s ease;
+            background: var(--blue);
+            color: var(--black);
+        }
+        .big-button:active { transform: translateY(1px); }
+
+        .btn-black {
+            background: var(--black);
+            color: var(--blue);
+            border: 2px solid var(--blue);
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            border-radius: 8px;
+            background: var(--black);
+            border: 2px solid var(--blue);
+        }
+
+        .results-box {
+            background: var(--black);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+        .results-box h3 { color: var(--blue); margin-bottom: 10px; }
+
+        .distance-item {
+            background: var(--black);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 1em;
+            border-left: 4px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .path-result {
+            background: var(--blue);
+            color: var(--black);
+            padding: 14px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 1.05em;
+            text-align: center;
+            border: 2px solid var(--blue);
+        }
+
+        ul { margin-left: 18px; color: var(--blue); }
+        li { margin: 8px 0; color: var(--blue); }
+
+        @media (max-width:768px) {
+            .input-simple { flex-direction: column; align-items: stretch; }
+            .input-simple label { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗺️ Encuentra el Camino Más Corto</h1>
+            <p class="subtitle">Algoritmo de Dijkstra Explicado Paso a Paso</p>
+        </header>
+
+        <!-- EXPLICACIÓN SIMPLE -->
+        <div class="section">
+            <h2>¿Qué hace este programa?</h2>
+            <div class="explanation">
+                <h3>Imagina que tienes un mapa con ciudades conectadas por carreteras</h3>
+                <p>Este programa encuentra <strong>el camino más corto</strong> entre dos ciudades, considerando las distancias de cada carretera.</p>
+                <div class="example-box">
+                    <strong>Ejemplo de la vida real:</strong><br>
+                    Imagina que quieres ir de tu casa al supermercado. Hay varios caminos posibles:
+                    <ul>
+                        <li>Camino A: 5 kilómetros</li>
+                        <li>Camino B: 3 + 2 = 5 kilómetros (con una parada)</li>
+                        <li>Camino C: 2 + 1 = 3 kilómetros (el más corto)</li>
+                    </ul>
+                    Este algoritmo te dice automáticamente que el Camino C es el mejor.
+                </div>
+            </div>
+
+            <div class="explanation">
+                <h3>¿Cómo funciona?</h3>
+                <p><strong>1</strong> Empieza en tu ciudad de origen</p>
+                <p><strong>2</strong> Revisa todas las ciudades vecinas y anota sus distancias</p>
+                <p><strong>3</strong> Siempre elige la ciudad más cercana que no hayas visitado</p>
+                <p><strong>4</strong> Repite hasta llegar a tu destino</p>
+                <p><strong>5</strong> ¡Listo! Ya tienes el camino más corto</p>
+            </div>
+        </div>
+
+        <!-- USO SIMPLE -->
+        <div class="section">
+            <h2>Pruébalo Tú Mismo</h2>
+
+            <div class="tip-box">
+                <strong>💡 Consejo:</strong> El ejemplo ya está cargado. Solo presiona "Buscar Camino Más Corto" para ver el resultado.
+            </div>
+
+            <div class="simple-controls">
+                <div class="input-simple">
+                    <label>Ciudad de Inicio:</label>
+                    <input type="number" id="sourceNode" value="0" min="0" max="5">
+                </div>
+
+                <div class="input-simple">
+                    <label>Ciudad de Destino:</label>
+                    <input type="number" id="targetNode" value="4" min="0" max="5">
+                </div>
+
+                <button class="big-button" onclick="runDijkstra()">
+                    🚀 Buscar Camino Más Corto
+                </button>
+
+                <button class="big-button btn-black" onclick="resetExample()">
+                    🔄 Resetear Ejemplo
+                </button>
+            </div>
+
+            <h3 style="color: var(--blue); margin: 20px 0 10px 0; text-align: center;">Mapa de Ciudades</h3>
+            <canvas id="graphCanvas" width="700" height="500"></canvas>
+
+            <div class="results-box" id="results">
+                <h3>📊 Resultados</h3>
+                <p style="text-align: center; color: var(--blue);">
+                    Presiona el botón azul para calcular el camino más corto
+                </p>
+            </div>
+        </div>
+
+        <!-- EXPLICACIÓN DEL CÓDIGO -->
+        <div class="section">
+            <h2>¿Cómo está programado?</h2>
+
+            <div class="explanation">
+                <h3>El código en Java usa estos elementos principales:</h3>
+
+                <div class="code-explanation">
+                    <h4 style="color:var(--blue);">1. Clase Edge (Arista/Carretera)</h4>
+                    <p style="color:var(--blue);">Representa una conexión entre dos ciudades:</p>
+                    <div style="color:var(--blue); padding-left:12px;">
+                        • <strong style="color:var(--blue);">to:</strong> ¿A qué ciudad llega?<br>
+                        • <strong style="color:var(--blue);">weight:</strong> ¿Cuántos kilómetros tiene?
+                    </div>
+                </div>
+
+                <div class="code-explanation" style="margin-top:10px;">
+                    <h4 style="color:var(--blue);">2. Clase Result (Resultado)</h4>
+                    <p style="color:var(--blue);">Guarda la información después de calcular:</p>
+                    <div style="color:var(--blue); padding-left:12px;">
+                        • <strong style="color:var(--blue);">dist[]:</strong> Distancia más corta a cada ciudad<br>
+                        • <strong style="color:var(--blue);">prev[]:</strong> Desde qué ciudad llegaste (para reconstruir el camino)<br>
+                        • <strong style="color:var(--blue);">pathTo():</strong> Función que arma el camino completo
+                    </div>
+                </div>
+
+                <div class="example-box" style="margin-top:12px;">
+                    <strong>Método addArista() - Agregar Carreteras:</strong><br>
+                    Este método conecta dos ciudades. Por ejemplo:<br>
+                    <code style="color:var(--blue);">addArista(0, 1, 7)</code> significa:<br>
+                    "Conecta la ciudad 0 con la ciudad 1, con una distancia de 7 km"
+                </div>
+
+                <div class="example-box" style="margin-top:12px;">
+                    <strong>Método shortestPaths() - Buscar Caminos:</strong><br><br>
+                    <strong style="color:var(--blue);">Paso 1:</strong> Crea arrays para guardar distancias y el camino<br>
+                    <strong style="color:var(--blue);">Paso 2:</strong> Marca la ciudad de inicio con distancia 0<br>
+                    <strong style="color:var(--blue);">Paso 3:</strong> Usa una cola de prioridad (como una lista ordenada)<br>
+                    <strong style="color:var(--blue);">Paso 4:</strong> Mientras haya ciudades por revisar: revisa y actualiza distancias<br>
+                    <strong style="color:var(--blue);">Paso 5:</strong> Devuelve todas las distancias calculadas
+                </div>
+            </div>
+        </div>
+
+        <!-- EJEMPLO DETALLADO -->
+        <div class="section">
+            <h2>Ejemplo Paso a Paso</h2>
+            <div class="explanation">
+                <h3>Veamos cómo el programa encuentra el camino de la Ciudad 0 a la Ciudad 4:</h3>
+
+                <div class="example-box">
+                    <strong style="color:var(--blue);">Inicio:</strong> Estás en la Ciudad 0<br>
+                    Distancia a Ciudad 0 = 0 (estás ahí)<br>
+                    Distancia a todas las demás = Infinito (aún no las has visitado)
+                </div>
+
+                <div class="example-box">
+                    <strong style="color:var(--blue);">Iteración 1:</strong> Desde la Ciudad 0<br>
+                    • Ciudad 1 está a 7 km<br>
+                    • Ciudad 2 está a 9 km<br>
+                    • Ciudad 5 está a 14 km<br>
+                    Elige Ciudad 1 (es la más cercana)
+                </div>
+
+                <div class="example-box">
+                    <strong style="color:var(--blue);">Iteración 2:</strong> Desde la Ciudad 1<br>
+                    • Ciudad 2: ¿Directo 9 km o por Ciudad 1 (7+10=17)? → Mantén 9 km<br>
+                    • Ciudad 3 está a 7+15=22 km<br>
+                    Elige Ciudad 2
+                </div>
+
+                <div class="example-box">
+                    <strong style="color:var(--blue);">Iteración 3:</strong> Desde la Ciudad 2<br>
+                    • Ciudad 3: ¿22 km o 9+11=20 km? → Actualiza a 20 km<br>
+                    • Ciudad 5: ¿14 km o 9+2=11 km? → Actualiza a 11 km<br>
+                    Elige Ciudad 5
+                </div>
+
+                <div class="example-box">
+                    <strong style="color:var(--blue);">Resultado:</strong><br>
+                    Llega a la Ciudad 4 con distancia más corta: <strong style="color:var(--blue);">20 km</strong><br>
+                    Camino: 0 → 2 → 5 → 4
+                </div>
+
+                <div class="tip-box" style="margin-top:10px;">
+                    <strong>¿Por qué funciona?</strong><br>
+                    Porque siempre elige el siguiente paso más corto, garantiza que cuando llega a un destino,
+                    ya encontró el camino más corto posible.
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTAJAS (AGREGADO) -->
+        <div class="section">
+            <h2>¿Por qué es útil este algoritmo?</h2>
+
+            <div class="explanation">
+                <h3>Aplicaciones en la vida real:</h3>
+                <ul>
+                    <li><strong>GPS y navegación:</strong> Encuentra la ruta más corta en mapas</li>
+                    <li><strong>Redes de internet:</strong> Encuentra el camino más rápido para enviar datos</li>
+                    <li><strong>Juegos:</strong> Mueve personajes por el camino más corto</li>
+                    <li><strong>Logística:</strong> Optimiza rutas de entrega</li>
+                    <li><strong>Telecomunicaciones:</strong> Enruta llamadas eficientemente</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <strong>Dato curioso:</strong> Este algoritmo fue inventado por Edsger Dijkstra en 1956,
+                ¡y todavía se usa en millones de aplicaciones hoy en día!
+            </div>
+        </div>
+
+        <!-- CÓDIGO JAVA (MOSTRADO) -->
+        <div class="section">
+            <h2>💻 Código Original en Java</h2>
+            <p style="font-size:1.05em; margin-bottom:12px; color:var(--blue);">
+                Este es el código que implementa el algoritmo de Dijkstra en Java.
+            </p>
+            <pre class="code-explanation"><code>package dijkstra;
+package dijkstra;
+
+import java.util.*;
+
+public class Dijkstra {
+
+    // Clase interna para representar una arista
+    static class Edge {
+        final int to;
+        final int weight;
+        Edge(int to, int weight) {
+            this.to = to;
+            this.weight = weight;
+        }
+    }
+
+    // Resultado del algoritmo: distancias y predecesores
+    static class Result {
+        final long[] dist;
+        final int[] prev;
+
+        Result(long[] dist, int[] prev) {
+            this.dist = dist;
+            this.prev = prev;
+        }
+
+        // Reconstruye el camino desde source hasta target (incluye ambos)
+        List<Integer> pathTo(int target) {
+            List<Integer> path = new ArrayList<>();
+            for (int v = target; v != -1; v = prev[v]) {
+                path.add(v);
+            }
+            Collections.reverse(path);
+            return path;
+        }
+    }
+
+    private final int V;                      // número de vértices
+    private final List<List<Edge>> adj;       // lista de adyacencia
+    private static final long INF = Long.MAX_VALUE / 4; // "infinito seguro"
+
+    public Dijkstra(int V) {
+        if (V <= 0) throw new IllegalArgumentException("El número de vértices debe ser > 0");
+        this.V = V;
+        this.adj = new ArrayList<>(V);
+        for (int i = 0; i < V; i++) adj.add(new ArrayList<>());
+    }
+
+    // Método para agregar aristas (grafo no dirigido por defecto)
+    public void addArista(int u, int v, int w) {
+        validarIndice(u);
+        validarIndice(v);
+        if (w < 0) throw new IllegalArgumentException("Dijkstra no admite pesos negativos");
+        adj.get(u).add(new Edge(v, w));
+        adj.get(v).add(new Edge(u, w)); // no dirigido
+    }
+
+    private void validarIndice(int i) {
+        if (i < 0 || i >= V) throw new IndexOutOfBoundsException("Índice fuera de rango: " + i);
+    }
+
+    // Ejecuta Dijkstra desde un origen
+    public Result shortestPaths(int source) {
+        validarIndice(source);
+
+        long[] dist = new long[V];
+        int[] prev = new int[V];
+        Arrays.fill(dist, INF);
+        Arrays.fill(prev, -1);
+        dist[source] = 0;
+
+        // Cola de prioridad con pares (distancia, nodo)
+        PriorityQueue<long[]> pq = new PriorityQueue<>(Comparator.comparingLong(a -> a[0]));
+        pq.add(new long[]{0L, source});
+
+        boolean[] settled = new boolean[V];
+
+        while (!pq.isEmpty()) {
+            long[] top = pq.poll();
+            long d = top[0];
+            int u = (int) top[1];
+
+            // Entrada obsoleta
+            if (d != dist[u]) continue;
+            if (settled[u]) continue;
+            settled[u] = true;
+
+            for (Edge e : adj.get(u)) {
+                int v = e.to;
+                long nd = d + e.weight;
+                if (nd < dist[v]) {
+                    dist[v] = nd;
+                    prev[v] = u;
+                    pq.add(new long[]{nd, v});
+                }
+            }
+        }
+        return new Result(dist, prev);
+    }
+
+    // Ejemplo de uso
+    public static void main(String[] args) {
+        Dijkstra g = new Dijkstra(6);
+
+        g.addArista(0, 1, 7);
+        g.addArista(0, 2, 9);
+        g.addArista(0, 5, 14);
+        g.addArista(1, 2, 10);
+        g.addArista(1, 3, 15);
+        g.addArista(2, 3, 11);
+        g.addArista(2, 5, 2);
+        g.addArista(3, 4, 6);
+        g.addArista(4, 5, 9);
+
+        Result r = g.shortestPaths(0);
+
+        System.out.println("Distancias desde el nodo 0:");
+        for (int i = 0; i < r.dist.length; i++) {
+            System.out.println("Hasta " + i + ": " + (r.dist[i] == INF ? "Infinito" : r.dist[i]));
+        }
+
+        int destino = 4;
+        System.out.println("Camino de 0 a " + destino + ": " + r.pathTo(destino));
+    }
+}
+}</code></pre>
+        </div>
+    </div>
+
+    <script>
+        // grafo y algoritmo (solo usa #000000 y #0040ff visualmente)
+        const graph = {
+            V: 6,
+            edges: [
+                { u: 0, v: 1, w: 7 },
+                { u: 0, v: 2, w: 9 },
+                { u: 0, v: 5, w: 14 },
+                { u: 1, v: 2, w: 10 },
+                { u: 1, v: 3, w: 15 },
+                { u: 2, v: 3, w: 11 },
+                { u: 2, v: 5, w: 2 },
+                { u: 3, v: 4, w: 6 },
+                { u: 4, v: 5, w: 9 }
+            ]
+        };
+
+        const INF = 999999;
+
+        function drawGraph(highlightPath = []) {
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            // limpiar con negro
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const positions = [
+                { x: 350, y: 80 },   // 0
+                { x: 200, y: 200 },  // 1
+                { x: 500, y: 200 },  // 2
+                { x: 200, y: 350 },  // 3
+                { x: 500, y: 350 },  // 4
+                { x: 350, y: 450 }   // 5
+            ];
+
+            // Dibujar aristas
+            graph.edges.forEach(e => {
+                const p1 = positions[e.u];
+                const p2 = positions[e.v];
+
+                const isInPath = highlightPath.includes(e.u) && highlightPath.includes(e.v) &&
+                    Math.abs(highlightPath.indexOf(e.u) - highlightPath.indexOf(e.v)) === 1;
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = '#0040ff'; // solo color permitido
+                ctx.lineWidth = isInPath ? 6 : 2;
+                ctx.stroke();
+
+                // Peso (texto azul sobre negro)
+                const mx = (p1.x + p2.x) / 2;
+                const my = (p1.y + p2.y) / 2;
+                ctx.fillStyle = '#0040ff';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(e.w, mx, my);
+            });
+
+            // Dibujar nodos
+            positions.forEach((pos, i) => {
+                const isInPath = highlightPath.includes(i);
+
+                // círculo (azul si está en camino, negro si no)
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 28, 0, 2 * Math.PI);
+                ctx.fillStyle = isInPath ? '#0040ff' : '#000000';
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#0040ff';
+                ctx.stroke();
+
+                // número del nodo: si fondo azul -> negro, si fondo negro -> azul
+                ctx.fillStyle = (isInPath ? '#000000' : '#0040ff');
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i, pos.x, pos.y);
+            });
+        }
+
+        function runDijkstra() {
+            const source = parseInt(document.getElementById('sourceNode').value);
+            const target = parseInt(document.getElementById('targetNode').value);
+
+            if (isNaN(source) || isNaN(target) || source < 0 || source >= 6 || target < 0 || target >= 6) {
+                alert('Las ciudades deben ser números del 0 al 5');
+                return;
+            }
+
+            // Construir lista de adyacencia
+            const adj = Array.from({ length: graph.V }, () => []);
+            graph.edges.forEach(e => {
+                adj[e.u].push({ to: e.v, weight: e.w });
+                adj[e.v].push({ to: e.u, weight: e.w });
+            });
+
+            // Dijkstra
+            const dist = Array(graph.V).fill(INF);
+            const prev = Array(graph.V).fill(-1);
+            dist[source] = 0;
+
+            const pq = [[0, source]];
+            const settled = Array(graph.V).fill(false);
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a[0] - b[0]);
+                const [d, u] = pq.shift();
+
+                if (settled[u]) continue;
+                settled[u] = true;
+
+                adj[u].forEach(e => {
+                    const v = e.to;
+                    const nd = d + e.weight;
+                    if (nd < dist[v]) {
+                        dist[v] = nd;
+                        prev[v] = u;
+                        pq.push([nd, v]);
+                    }
+                });
+            }
+
+            // Reconstruir camino
+            const path = [];
+            for (let v = target; v !== -1; v = prev[v]) {
+                path.unshift(v);
+            }
+
+            displayResults(dist, path, source, target);
+            drawGraph(path);
+        }
+
+        function displayResults(dist, path, source, target) {
+            let html = '<h3>📊 Resultados del Cálculo</h3>';
+
+            html += '<div style="margin: 12px 0;">';
+            html += '<h4 style="color: #0040ff; margin-bottom: 10px;">Distancias desde la Ciudad ' + source + ':</h4>';
+
+            for (let i = 0; i < dist.length; i++) {
+                const distStr = dist[i] === INF ? 'No hay camino' : dist[i] + ' km';
+                html += `<div class="distance-item"><strong>Ciudad ${i}:</strong> ${distStr}</div>`;
+            }
+            html += '</div>';
+
+            if (dist[target] !== INF) {
+                html += `<div class="path-result">
+                    <strong>🎯 Camino Más Corto Encontrado</strong><br><br>
+                    De Ciudad ${source} a Ciudad ${target}<br>
+                    <div style="font-size: 1.2em; margin: 12px 0;">
+                        ${path.join(' → ')}
+                    </div>
+                    <strong>Distancia Total: ${dist[target]} kilómetros</strong>
+                </div>`;
+            } else {
+                html += `<div class="path-result" style="background:#000000; color:#0040ff; border-color:#0040ff;">
+                    ❌ No existe un camino entre la Ciudad ${source} y la Ciudad ${target}
+                </div>`;
+            }
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function resetExample() {
+            document.getElementById('sourceNode').value = 0;
+            document.getElementById('targetNode').value = 4;
+            document.getElementById('results').innerHTML = `
+                <h3>📊 Resultados</h3>
+                <p style="text-align: center; color: #0040ff;">
+                    Presiona el botón azul para calcular el camino más corto
+                </p>
+            `;
+            drawGraph();
+        }
+
+        // Dibujar grafo inicial
+        drawGraph();
+    </script>
+</body>
+</html>
