@@ -1,174 +1,187 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Algoritmo de Dijkstra - Encuentra el Camino Más Corto</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        /* Solo colores permitidos: #000000 y #0040ff */
-        :root {
-            --black: #000000;
-            --blue: #0040ff;
-        }
-        html, body {
-            height: 100%;
-            background: var(--black);
-            color: var(--blue);
-            font-family: Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            line-height: 1.6;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Algoritmo de Dijkstra - Camino Más Corto</title>
 
-        .container {
-            max-width: 940px;
-            margin: 24px auto;
-            background: var(--black);
-            border-radius: 10px;
-            overflow: hidden;
-            padding-bottom: 24px;
-            border: 3px solid var(--blue);
-        }
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        header {
-            background: var(--blue);
-            color: var(--black);
-            padding: 28px 20px;
-            text-align: center;
-        }
-        h1 { font-size: 2em; margin-bottom: 8px; color: var(--black); }
-        .subtitle { color: var(--black); opacity: 0.95; }
+    /* 🎨 Paleta principal */
+    :root {
+      --blue: #ff9f0a;      /* Naranja fuerte para acentos */
+      --gray: #ffffff;      /* Texto claro */
+      --orange: #ffb340;    /* Detalles suaves y bordes */
+      --opacity: #f2f2f2;   /* Fondo claro de contraste */
+      --black: #0d0d0d;     /* Fondo general oscuro */
+    }
 
-        .section {
-            padding: 26px;
-            border-bottom: 3px solid var(--blue);
-        }
-        .section:last-child { border-bottom: none; }
+    html, body {
+      height: 100%;
+      background: var(--black);
+      color: var(--gray);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        h2 {
-            color: var(--blue);
-            font-size: 1.6em;
-            margin-bottom: 18px;
-            border-left: 5px solid var(--blue);
-            padding-left: 12px;
-        }
+    .container {
+      max-width: 940px;
+      margin: 24px auto;
+      background: var(--black);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 3px solid var(--blue);
+      box-shadow: 0 0 25px rgba(255, 159, 10, 0.4);
+    }
 
-        .explanation, .tip-box {
-            background: var(--black);
-            padding: 18px;
-            border-radius: 8px;
-            margin-bottom: 14px;
-            border: 2px solid var(--blue);
-            color: var(--blue);
-        }
+    header {
+      background: var(--blue);
+      color: var(--black);
+      padding: 28px 20px;
+      text-align: center;
+    }
+    h1 { font-size: 2em; margin-bottom: 6px; }
+    .subtitle { color: var(--black); opacity: 0.8; }
 
-        .explanation h3 { color: var(--blue); margin-bottom: 10px; }
-        .explanation p, .explanation li { color: var(--blue); }
+    .section {
+      padding: 26px;
+      border-bottom: 3px solid var(--orange);
+    }
+    .section:last-child { border-bottom: none; }
 
-        .example-box {
-            background: var(--black);
-            padding: 12px;
-            border-radius: 8px;
-            margin: 12px 0;
-            border-left: 4px solid var(--blue);
-            color: var(--blue);
-        }
+    h2 {
+      color: var(--orange);
+      font-size: 1.6em;
+      margin-bottom: 16px;
+      border-left: 6px solid var(--blue);
+      padding-left: 12px;
+    }
 
-        .code-explanation, pre code {
-            background: var(--black);
-            color: var(--blue);
-            padding: 14px;
-            border-radius: 8px;
-            border: 2px solid var(--blue);
-            display: block;
-            overflow-x: auto;
-            font-family: monospace;
-            font-size: 0.95em;
-        }
+    .explanation, .tip-box {
+      background: rgba(255, 179, 64, 0.05);
+      padding: 18px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      border: 2px solid var(--blue);
+      color: var(--gray);
+    }
 
-        .input-simple {
-            display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: 1.05em;
-        }
-        .input-simple label { color: var(--blue); font-weight: bold; min-width: 150px; }
-        .input-simple input {
-            flex: 1; padding: 12px; font-size: 1.05em;
-            border: 2px solid var(--blue); border-radius: 8px;
-            background: var(--black); color: var(--blue);
-        }
+    .explanation h3 { color: var(--orange); margin-bottom: 8px; }
 
-        .big-button {
-            width: 100%;
-            padding: 14px;
-            font-size: 1.05em;
-            font-weight: 700;
-            border: 2px solid var(--blue);
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 8px 0;
-            transition: transform .12s ease;
-            background: var(--blue);
-            color: var(--black);
-        }
-        .big-button:active { transform: translateY(1px); }
+    .example-box {
+      background: rgba(255, 159, 10, 0.08);
+      border-left: 4px solid var(--blue);
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
 
-        .btn-black {
-            background: var(--black);
-            color: var(--blue);
-            border: 2px solid var(--blue);
-        }
+    .code-explanation, pre code {
+      background: #1a1a1a;
+      color: var(--opacity);
+      padding: 14px;
+      border-radius: 8px;
+      border: 2px solid var(--orange);
+      display: block;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 0.95em;
+    }
 
-        canvas {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
-            border-radius: 8px;
-            background: var(--black);
-            border: 2px solid var(--blue);
-        }
+    .input-simple {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .input-simple label {
+      color: var(--orange);
+      font-weight: bold;
+      min-width: 150px;
+    }
+    .input-simple input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid var(--blue);
+      border-radius: 8px;
+      background: var(--black);
+      color: var(--gray);
+    }
 
-        .results-box {
-            background: var(--black);
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 12px;
-            border: 2px solid var(--blue);
-            color: var(--blue);
-        }
-        .results-box h3 { color: var(--blue); margin-bottom: 10px; }
+    .big-button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05em;
+      font-weight: bold;
+      border: 2px solid var(--orange);
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 8px 0;
+      transition: all .15s ease;
+      background: var(--blue);
+      color: var(--black);
+    }
+    .big-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 12px var(--orange);
+    }
 
-        .distance-item {
-            background: var(--black);
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 6px;
-            font-size: 1em;
-            border-left: 4px solid var(--blue);
-            color: var(--blue);
-        }
+    .btn-black {
+      background: var(--black);
+      color: var(--orange);
+      border: 2px solid var(--orange);
+    }
 
-        .path-result {
-            background: var(--blue);
-            color: var(--black);
-            padding: 14px;
-            border-radius: 8px;
-            margin: 12px 0;
-            font-size: 1.05em;
-            text-align: center;
-            border: 2px solid var(--blue);
-        }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+      border-radius: 10px;
+      background: var(--opacity);
+      border: 2px solid var(--orange);
+    }
 
-        ul { margin-left: 18px; color: var(--blue); }
-        li { margin: 8px 0; color: var(--blue); }
+    .results-box {
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 14px;
+      border: 2px solid var(--blue);
+    }
+    .results-box h3 {
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
 
-        @media (max-width:768px) {
-            .input-simple { flex-direction: column; align-items: stretch; }
-            .input-simple label { min-width: auto; }
-        }
-    </style>
+    .distance-item {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      margin: 6px 0;
+      border-left: 4px solid var(--blue);
+      border-radius: 6px;
+    }
+
+    .path-result {
+      background: var(--blue);
+      color: var(--black);
+      padding: 14px;
+      border-radius: 8px;
+      margin: 12px 0;
+      text-align: center;
+      border: 2px solid var(--orange);
+    }
+
+    @media (max-width:768px) {
+      .input-simple { flex-direction: column; align-items: stretch; }
+      .input-simple label { min-width: auto; }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
+   <div class="container">
         <header>
             <h1>🗺️ Encuentra el Camino Más Corto</h1>
             <p class="subtitle">Algoritmo de Dijkstra Explicado Paso a Paso</p>
@@ -230,13 +243,13 @@
                 </button>
             </div>
 
-            <h3 style="color: var(--blue); margin: 20px 0 10px 0; text-align: center;">Mapa de Ciudades</h3>
+            <h3 style="color: var(--orange); margin: 20px 0 10px 0; text-align: center;">Mapa de Ciudades</h3>
             <canvas id="graphCanvas" width="700" height="500"></canvas>
 
             <div class="results-box" id="results">
                 <h3>📊 Resultados</h3>
                 <p style="text-align: center; color: var(--blue);">
-                    Presiona el botón azul para calcular el camino más corto
+                    Presiona el botón orange para calcular el camino más corto
                 </p>
             </div>
         </div>
@@ -513,7 +526,7 @@ public class Dijkstra {
             const canvas = document.getElementById('graphCanvas');
             const ctx = canvas.getContext('2d');
             // limpiar con negro
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const positions = [
@@ -536,14 +549,14 @@ public class Dijkstra {
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
-                ctx.strokeStyle = '#0040ff'; // solo color permitido
+                ctx.strokeStyle = 'orange'; // solo color permitido
                 ctx.lineWidth = isInPath ? 6 : 2;
                 ctx.stroke();
 
                 // Peso (texto azul sobre negro)
                 const mx = (p1.x + p2.x) / 2;
                 const my = (p1.y + p2.y) / 2;
-                ctx.fillStyle = '#0040ff';
+                ctx.fillStyle = '#orange';
                 ctx.font = 'bold 14px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -557,14 +570,14 @@ public class Dijkstra {
                 // círculo (azul si está en camino, negro si no)
                 ctx.beginPath();
                 ctx.arc(pos.x, pos.y, 28, 0, 2 * Math.PI);
-                ctx.fillStyle = isInPath ? '#0040ff' : '#000000';
+                ctx.fillStyle = isInPath ? 'orange' : '#1a1a1a';
                 ctx.fill();
                 ctx.lineWidth = 3;
-                ctx.strokeStyle = '#0040ff';
+                ctx.strokeStyle = '#orange';
                 ctx.stroke();
 
                 // número del nodo: si fondo azul -> negro, si fondo negro -> azul
-                ctx.fillStyle = (isInPath ? '#000000' : '#0040ff');
+                ctx.fillStyle = (isInPath ? '#000000' : 'white');
                 ctx.font = 'bold 18px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -628,7 +641,7 @@ public class Dijkstra {
             let html = '<h3>📊 Resultados del Cálculo</h3>';
 
             html += '<div style="margin: 12px 0;">';
-            html += '<h4 style="color: #0040ff; margin-bottom: 10px;">Distancias desde la Ciudad ' + source + ':</h4>';
+            html += '<h4 style="color: orange; margin-bottom: 10px;">Distancias desde la Ciudad ' + source + ':</h4>';
 
             for (let i = 0; i < dist.length; i++) {
                 const distStr = dist[i] === INF ? 'No hay camino' : dist[i] + ' km';
@@ -659,7 +672,7 @@ public class Dijkstra {
             document.getElementById('targetNode').value = 4;
             document.getElementById('results').innerHTML = `
                 <h3>📊 Resultados</h3>
-                <p style="text-align: center; color: #0040ff;">
+                <p style="text-align: center; color: orange;">
                     Presiona el botón azul para calcular el camino más corto
                 </p>
             `;
